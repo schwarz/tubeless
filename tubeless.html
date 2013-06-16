@@ -34,24 +34,37 @@
       return a < b ? 1 : a > b ? -1 : 0;
     }
 
+    // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values/901144#901144
+    function getParameterByName(name) {
+      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+      return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
     $(document).ready(function(){
-      var youtubeFeedURL = "https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=10&alt=json&orderby=published&callback=?";
+      var per = parseInt(getParameterByName("per")); // how many videos to fetch per feed
+      var total = parseInt(getParameterByName("total")); // how many videos to display
+      var youtubeFeedURL = "https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=$per&alt=json&orderby=published&callback=?";
       var youtubeThumbnailURI = "https://i1.ytimg.com/vi/$video_id/mqdefault.jpg";
       var channels = document.URL.split('?')[1].split('=')[1].split('+');
+
+      var channels = getParameterByName("subscriptions").split(' ');
       $("#channels").val(channels);
       $("#channelURI").attr('href', document.URL);
       $("#channelURI").text(document.URL);
 
       $('#channels').keyup(function(){
-        $('#channelURI').attr('href', [location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val());
-        $('#channelURI').text([location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val());
+        var newURI = [location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val() + '&per=' + per + '&total=' + total;
+        $('#channelURI').attr('href', newURI);
+        $('#channelURI').text(newURI);
       });
       var jxhr = [];
       var feedEntries = new Array();
       
       $.each(channels, function (i, url){
         jxhr.push(
-          $.getJSON(youtubeFeedURL.replace('$channel', url), function(response){
+          $.getJSON(youtubeFeedURL.replace('$channel', url).replace('$per', per), function(response){
             $.each(response.feed.entry, function(i, item){
               feedEntries.push(item);
             });
@@ -62,7 +75,7 @@
       $.when.apply($, jxhr).done(function(){
         feedEntries.sort(sortByPublished);
 
-        $.each(feedEntries, function(i, item){
+        $.each(feedEntries.slice(0, total), function(i, item){
           var parts = item.id.$t.split("/");
           var id = parts[parts.length -1];
 
@@ -88,8 +101,8 @@
     <h1>Tubeless</h1>
   </div>
 
-  <!--Delete or comment out the content of the following div to hide-->
-  <div>
+  <!-- To remove training wheels change 'display: inline' to 'display: none' -->
+  <div style='display: inline'>
     <div class="row">
       <h2>Setup</h2>
       <p>Manage subscriptions by their presence in the query string.</p>
