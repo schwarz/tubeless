@@ -50,7 +50,7 @@
       // You can easily change the used format in the following line.
       var youtubeThumbnailURI = 'https://i1.ytimg.com/vi/$video_id/mqdefault.jpg';
       var channels = getParameterByName('subscriptions').split(' ');
-
+      console.log(channels);
       if(getParameterByName('setup') == 'false'){
         $('#setup').attr('style', 'display: none');
       }
@@ -60,7 +60,7 @@
       $('#channelURI').text(document.URL);
 
       $('#channels').keyup(function(){
-        var newURI = [location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val() + '&per=' + per + '&total=' + total;
+        var newURI = [location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val().split(',').join('+') + '&per=' + per + '&total=' + total;
         $('#channelURI').attr('href', newURI);
         $('#channelURI').text(newURI);
       });
