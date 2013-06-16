@@ -46,6 +46,8 @@
       var per = parseInt(getParameterByName("per")); // how many videos to fetch per feed
       var total = parseInt(getParameterByName("total")); // how many videos to display
       var youtubeFeedURL = "https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=$per&alt=json&orderby=published&callback=?";
+      // YouTube provides multiple thumbnail formats. There's default, hqdefault, mqdefault and maxresdefault. 
+      // You can easily change the used format in the following line.
       var youtubeThumbnailURI = "https://i1.ytimg.com/vi/$video_id/mqdefault.jpg";
       var channels = getParameterByName("subscriptions").split(' ');
 
