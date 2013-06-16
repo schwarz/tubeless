@@ -47,9 +47,12 @@
       var total = parseInt(getParameterByName("total")); // how many videos to display
       var youtubeFeedURL = "https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=$per&alt=json&orderby=published&callback=?";
       var youtubeThumbnailURI = "https://i1.ytimg.com/vi/$video_id/mqdefault.jpg";
-      var channels = document.URL.split('?')[1].split('=')[1].split('+');
-
       var channels = getParameterByName("subscriptions").split(' ');
+
+      if(getParameterByName('setup') == 'false'){
+        $('#setup').attr('style', 'display: none');
+      }
+
       $("#channels").val(channels);
       $("#channelURI").attr('href', document.URL);
       $("#channelURI").text(document.URL);
@@ -101,8 +104,8 @@
     <h1>Tubeless</h1>
   </div>
 
-  <!-- To remove training wheels change 'display: inline' to 'display: none' -->
-  <div style='display: inline'>
+  <!-- To remove training wheels change 'display: inline' to 'display: none' or add parameter setup=false to URI -->
+  <div style='display: inline' id='setup'>
     <div class="row">
       <h2>Setup</h2>
       <p>Manage subscriptions by their presence in the query string.</p>
