@@ -43,8 +43,8 @@
     }
 
     $(document).ready(function(){
-      var per = parseInt(getParameterByName('per')); // how many videos to fetch per feed
-      var total = parseInt(getParameterByName('total')); // how many videos to display
+      var per = parseInt(getParameterByName('per')) || 10; // how many videos to fetch per feed
+      var total = parseInt(getParameterByName('total')) || 15; // how many videos to display
       var youtubeFeedURL = 'https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=$per&alt=json&orderby=published&callback=?';
       // YouTube provides multiple thumbnail formats. There's default, hqdefault, mqdefault and maxresdefault. 
       // You can easily change the used format in the following line.
@@ -84,7 +84,7 @@
           var parts = item.id.$t.split('/');
           var id = parts[parts.length -1];
 
-          var html = '<div class="row">' +
+          var html = '<div class="row" style="margin-bottom: 15px">' +
               '<div class="small-2 large-4 columns">' +
                 '<img src="' + youtubeThumbnailURI.replace('$video_id', id) + '" width="185"/>' +
               '</div>' +
