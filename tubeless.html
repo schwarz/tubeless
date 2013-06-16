@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width" />
+  <title>Tubeless</title>
+  <meta name="description" content="Web 1.0 YouTube">
+  <meta name="author" content="Bernhard Schwarz">
+  <link rel="stylesheet" href="foundation.min.css" />
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <script src="http://code.jquery.com/jquery-2.0.2.min.js"></script>
+  <script src="jquery.timeago.js"></script>
+  <script>
+    // http://wiki.cdyne.com/?title=Converting_XML_Timestamp_to_Javascript_Date
+    function timestampToDate(xmlDate)
+    {
+      var dt = new Date();
+      var dtS = xmlDate.slice(xmlDate.indexOf('T')+1, xmlDate.indexOf('.'))
+      var TimeArray = dtS.split(":");
+      dt.setUTCHours(TimeArray[0],TimeArray[1],TimeArray[2]);
+      dtS = xmlDate.slice(0, xmlDate.indexOf('T'))
+      TimeArray = dtS.split("-");
+      dt.setUTCFullYear(TimeArray[0],TimeArray[1],TimeArray[2]);
+      return dt;
+    }
+
+    function sortByPublished(a, b){
+      a = timestampToDate(a.published.$t);
+      b = timestampToDate(b.published.$t);
+      return a < b ? 1 : a > b ? -1 : 0;
+    }
+
+    $(document).ready(function(){
+      var youtubeFeedURL = "https://gdata.youtube.com/feeds/base/users/$channel/uploads?max-results=10&alt=json&orderby=published&callback=?";
+      var youtubeThumbnailURI = "https://i1.ytimg.com/vi/$video_id/mqdefault.jpg";
+      var channels = document.URL.split('?')[1].split('=')[1].split('+');
+      $("#channels").val(channels);
+      $("#channelURI").attr('href', document.URL);
+      $("#channelURI").text(document.URL);
+
+      $('#channels').keyup(function(){
+        $('#channelURI').attr('href', [location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val());
+        $('#channelURI').text([location.protocol, '//', location.host, location.pathname].join('') + '?subscriptions=' + $('#channels').val());
+      });
+      var jxhr = [];
+      var feedEntries = new Array();
+      
+      $.each(channels, function (i, url){
+        jxhr.push(
+          $.getJSON(youtubeFeedURL.replace('$channel', url), function(response){
+            $.each(response.feed.entry, function(i, item){
+              feedEntries.push(item);
+            });
+          })
+        );
+      });
+
+      $.when.apply($, jxhr).done(function(){
+        feedEntries.sort(sortByPublished);
+
+        $.each(feedEntries, function(i, item){
+          var parts = item.id.$t.split("/");
+          var id = parts[parts.length -1];
+
+          var html = '<div class="row">' +
+              '<div class="small-2 large-4 columns">' +
+                '<img src="' + youtubeThumbnailURI.replace("$video_id", id) + '" width="185"/>' +
+              '</div>' +
+              '<div class="small-4 large-8 columns">' + 
+                '<div class="row">' + 
+                  '<a href="' + item.link[0].href + '">' + item.title.$t + '</a>' + 
+                '</div>' +
+                '<div class="row">' + 
+                  'uploaded ' + jQuery.timeago(item.published.$t) + ' by ' + '<a href="' + item.author[0].uri + '">' + item.author[0].name.$t + '</a>' +
+                '</div>'
+              '</div>';
+
+          $("#uploads").append(html);
+        });
+      });
+  });
+</script>
+  <div class="row">
+    <h1>Tubeless</h1>
+  </div>
+
+  <!--Delete or comment out the content of the following div to hide-->
+  <div>
+    <div class="row">
+      <h2>Setup</h2>
+      <p>Manage subscriptions by their presence in the query string.</p>
+    </div>
+    <div class="row">
+      <input id="channels" type="textbox" style='width: 100%'/>
+    </div>
+    <div class="row">
+      <a id='channelURI'>loading...</a>
+    </div>
+  </div>
+  <div class="row">
+    <h2>Uploads</h2>
+    <div id="uploads"></div>
+  </div>
+</body>
+</html>
