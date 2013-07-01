@@ -35,7 +35,7 @@
     }
 
     // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values/901144#901144
-    function getParameterByName(name) {
+    function getParameterByName(name){
       name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
       var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
         results = regex.exec(location.search);
@@ -66,12 +66,16 @@
       var jxhr = [];
       var feedEntries = new Array();
       
-      $.each(channels, function (i, url){
+      $.each(channels, function (i, channel){
         jxhr.push(
-          $.getJSON(youtubeFeedURL.replace('$channel', url).replace('$per', per), function(response){
-            $.each(response.feed.entry, function(i, item){
-              feedEntries.push(item);
-            });
+          $.getJSON(youtubeFeedURL.replace('$channel', channel).replace('$per', per), function(response){
+            try{
+              $.each(response.feed.entry, function(i, item){
+                feedEntries.push(item);
+              });
+              } catch(e){
+              console.log("Couldn't process " + channel);
+            }
           })
         );
       });
