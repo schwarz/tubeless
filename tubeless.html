@@ -96,7 +96,7 @@
                   '<a href="' + item.link[0].href.replace('&feature=youtube_gdata', '') + '">' + item.title.$t + '</a>' + 
                 '</div>' +
                 '<div class="row">' + 
-                  'uploaded ' + jQuery.timeago(item.published.$t) + ' by ' + '<a href="' + 'https://www.youtube.com/' + item.author[0].name.$t + '">' + item.author[0].name.$t + '</a>' +
+                  'uploaded ' + jQuery.timeago(item.published.$t) + ' by ' + '<a href="' + 'https://www.youtube.com/' + item.author[0].uri.$t.slice(item.author[0].uri.$t.lastIndexOf("/") + 1) + '">' + item.author[0].name.$t + '</a>' +
                 '</div>'
               '</div>';
 
